@@ -43,7 +43,7 @@ def reshaper(array, new_shape, binning):
         a1 = np.arange(new_shape[0]//b)*b
         a2 = np.arange(new_shape[1]//b)*b
         for i in a1:
-            for j in a2:#Moyenne pondérée
+            for j in a2:
                 new_array[i:i+b,j:j+b] = array[i//b,j//b]
         return new_array
 
