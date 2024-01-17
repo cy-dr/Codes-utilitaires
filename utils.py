@@ -13,19 +13,23 @@ def binner(Map, Map_err, binning):
 
     output : binnedMap, binnedMap_err
     """
-    a1 = np.arange(Map.shape[0]//binning)*binning
-    a2 = np.arange(Map.shape[1]//binning)*binning
-    binnedMap = np.zeros((Map.shape[0]//binning,Map.shape[1]//binning))
-    binnedMap_err = np.zeros((Map_err.shape[0]//binning,Map_err.shape[1]//binning))
-    for i in a1: 
-        for j in a2:                                 #moyenne pondérée
-            binnedMap[i//binning,j//binning] = (np.nansum(Map[i:i+binning,j:j+binning]/
-                                                         (Map_err[i:i+binning,j:j+binning])**2)/
-                                                np.nansum(1/(Map_err[i:i+binning,j:j+binning])**2)) 
-            binnedMap_err[i//binning,j//binning] = np.sqrt(np.nansum(((1/Map_err[i:i+binning,j:j+binning])/
-                                                                      np.nansum(1/Map_err[i:i+binning,j:j+binning]**2))**2)) 
-    
-    return binnedMap, binnedMap_err
+    if binning < 2:
+        print('no binning')
+        return Map, Map_err
+    else:
+        a1 = np.arange(Map.shape[0]//binning)*binning
+        a2 = np.arange(Map.shape[1]//binning)*binning
+        binnedMap = np.zeros((Map.shape[0]//binning,Map.shape[1]//binning))
+        binnedMap_err = np.zeros((Map_err.shape[0]//binning,Map_err.shape[1]//binning))
+        for i in a1: 
+            for j in a2:                                 #moyenne pondérée
+                binnedMap[i//binning,j//binning] = (np.nansum(Map[i:i+binning,j:j+binning]/
+                                                             (Map_err[i:i+binning,j:j+binning])**2)/
+                                                    np.nansum(1/(Map_err[i:i+binning,j:j+binning])**2)) 
+                binnedMap_err[i//binning,j//binning] = np.sqrt(np.nansum(((1/Map_err[i:i+binning,j:j+binning])/
+                                                                          np.nansum(1/Map_err[i:i+binning,j:j+binning]**2))**2)) 
+        
+        return binnedMap, binnedMap_err
 
 def reshaper(array, new_shape, binning):
     """
@@ -43,7 +47,7 @@ def reshaper(array, new_shape, binning):
         a1 = np.arange(new_shape[0]//b)*b
         a2 = np.arange(new_shape[1]//b)*b
         for i in a1:
-            for j in a2:
+            for j in a2:#Moyenne pondérée
                 new_array[i:i+b,j:j+b] = array[i//b,j//b]
         return new_array
 
@@ -55,5 +59,3 @@ def corr(map, map_err, line, RCHaHb, RCHaHbP, RCHaHbM):
     mapCorr = map*RCHaHb.getCorr(line)
     mapCorr_err = np.sqrt((map_err*RCHaHb.getCorr(line))**2 + (map*np.abs(RCHaHbP.getCorr(line)-RCHaHbM.getCorr(line))/2)**2)
     return mapCorr, mapCorr_err
-
-
