@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-
+import gvar
 def binner(Map, Map_err, binning):
     """
     Function that applies a binning to a 2D numpy.array with a weigted mean, it ignores np.nan values if present.
@@ -34,7 +34,7 @@ def binner(Map, Map_err, binning):
 def reshaper(array, new_shape, binning):
     """
     Function that reshapes a 2D_array to a new 2D_array of bigger size (usually that has been binned)
-
+    NAN
     array : 2D numpy.array
     new_shape : Tuple corresponding to the wanted array.shape() output
     binning : The binning value that was applied to produce "array"
@@ -43,16 +43,22 @@ def reshaper(array, new_shape, binning):
         return array
     else:
         b = binning
-        new_array = np.zeros(new_shape)
+        new_array = np.zeros(new_shape)*np.nan
         a1 = np.arange(new_shape[0]//b)*b
         a2 = np.arange(new_shape[1]//b)*b
         for i in a1:
             for j in a2:#Moyenne pondérée
                 new_array[i:i+b,j:j+b] = array[i//b,j//b]
         return new_array
-
+def weighted_mean(array, array_err):
+    mina = np.nanmin(array_err) 
+    array_err = array_err/mina
+    wm = np.nansum(array/array_err**2)/np.nansum(1/array_err**2)
+    wm_err = np.sqrt((np.nansum(array_err/array_err**2)/np.nansum(1/array_err**2))**2)*mina
+    return gvar.gvar(wm,wm_err)
+    
 def corr(map, map_err, line, RCHaHb, RCHaHbP, RCHaHbM):
-    """Function that applies a redenning correction to an emission map of a specific line
+    """Function that applies a redenning correction from pyneb RedCorr() object to an emission map of a specific line
     map, map_err: 2D_array
     line : float
     RCHaHb, RCHaHbP, RCHaHbM : RedCorr() objects from PyNeb"""
